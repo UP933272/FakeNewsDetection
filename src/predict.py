@@ -28,3 +28,4 @@ if prediction == 0:
     print("\nResult: This is fake news ❌")
 else:
     print("\nResult: This is not fake news ✅")
+    print("the text that has been scanned for fake news, text")

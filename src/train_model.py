@@ -29,4 +29,4 @@ print("Saving model...")
 pickle.dump(model, open("../models/model.pkl", "wb"))
 pickle.dump(vectorizer, open("../models/vectorizer.pkl", "wb"))
 
-print("✅ Training complete!")
+print("Training complete!")
