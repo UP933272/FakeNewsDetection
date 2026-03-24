@@ -26,7 +26,9 @@ prediction = model.predict(text_vectorized)[0]
 
 if prediction == 0:
     print("\nResult: This is fake news ❌")
+    print("\n")
     print("The text that has been scanned for fake news:" "\n" + text)
 else:
     print("\nResult: This is not fake news ✅")
+    print("\n")
     print("The text that has been scanned for fake news:" "\n" + text)
