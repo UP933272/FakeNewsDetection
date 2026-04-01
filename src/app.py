@@ -2,23 +2,27 @@ import streamlit as st
 import pickle
 
 st.set_page_config(layout="wide")
+
+if "status" not in st.session_state:
+    st.session_state.status = "Waiting for user input"
+
 st.markdown("""
 <style>
 div.stButton > button {
-    background-color: #001f3f;  /* navy blue */
+    background-color: #001f3f;
     color: white;
     border-radius: 8px;
     padding: 10px 20px;
     font-weight: bold;
 }
 div.stButton > button:hover {
-    background-color: #003366;  /* lighter navy on hover */
+    background-color: #003366;
     color: white;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Load trained model and vectorizer
+# Load trained machine learning model
 model = pickle.load(open("../models/model.pkl", "rb"))
 vectorizer = pickle.load(open("../models/vectorizer.pkl", "rb"))
 
@@ -33,89 +37,97 @@ with left_col:
     user_input = st.text_area(
         "Enter text:",
         height=400,
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="text_input"
     )
 
-    st.write("")  # spacing
+    st.write("")
 
-    # NEW: row for button alignment
     col1, col2 = st.columns([5, 1])
-
     with col2:
         scan = st.button("Scan", use_container_width=True)
 
+# ---- PROCESS SCAN BEFORE DISPLAYING STATUS ----
+prediction = None
+score = None
+colour = None
+result_text = None
+warning_text = None
+
+if scan:
+    if user_input.strip() == "":
+        warning_text = "Please enter some text before scanning for fake news."
+        st.session_state.status = "Waiting for user input"
+    else:
+        text_vectorized = vectorizer.transform([user_input])
+        prediction = model.predict(text_vectorized)[0]
+
+        st.session_state.status = "Scan Completed!"
+
+        if prediction == 0:
+            colour = "red"
+            score = 10
+            result_text = "Very Likely Fake News"
+        elif prediction == 1: 
+            colour = "green"
+            score = 1
+            result_text = "Very Unlikely Fake News"
+        else:
+            colour = "orange"
+            score = 5
+            result_text = "Uncertain"
+
 with middle_col:
     st.subheader("Fake News Scoring Information")
-    st.write("**0–2:** Highly likely fake news")
-    st.write("**3–4:** Likely fake news")
-    st.write("**5:** Uncertain")
-    st.write("**6–7:** Likely real news")
-    st.write("**8–10:** Highly likely real news")
+    st.markdown("<span style='color:red'><b>1–2:</b> Very Unlikely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:red'><b>3–4:</b> Unlikely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:orange'><b>5:</b> Uncertain</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:green'><b>6–7:</b> Likely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:green'><b>8–10:</b> Very Likely fake news</span>", unsafe_allow_html=True)
     st.write("")
     st.write(
-        "This score is based on the machine learning model using Logical Regression "
-        "of the text content using a news content based fake news detection approach."
+        "This score is based on the machine learning model using Logistic Regression "
+        "of the text content using a news content-based fake news detection approach."
+    )
+    st.write("")
+    st.markdown(
+        f"<h4 style='text-align: center;'>Status: {st.session_state.status}</h4>",
+        unsafe_allow_html=True
     )
 
 with right_col:
     st.markdown(
-    "<h2 style='text-align: center;'>Fake News Score</h2>",
-    unsafe_allow_html=True
-)
+        "<h2 style='text-align: center;'>Fake News Score</h2>",
+        unsafe_allow_html=True
+    )
 
-    # Placeholder until scan runs
-    score_placeholder = st.empty()
-    result_placeholder = st.empty()
+    if warning_text:
+        st.warning(warning_text)
 
-    if scan:
-        if user_input.strip() == "":
-            result_placeholder.warning("Please enter some text before scanning for fake news.")
+    if score is not None:
+        st.markdown(
+            f"""
+            <div style="
+                width: 280px;
+                height: 280px;
+                border-radius: 50%;
+                border: 20px solid {colour};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 20px auto;
+                font-size: 60px;
+                font-weight: bold;
+                color: black;
+                background-color: transparent;
+            ">
+                {score}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        if prediction == 0:
+            st.error(result_text)
         else:
-            text_vectorized = vectorizer.transform([user_input])
-
-            prediction = model.predict(text_vectorized)[0]
-            probabilities = model.predict_proba(text_vectorized)[0]
-
-            # probability of class 1 (real)
-            real_prob = probabilities[1]
-            score = round(real_prob * 10)
-
-            if score <= 3:
-                colour = "red"
-            elif score <= 6:
-                colour = "orange"
-            else:
-                colour = "green"
-
-
-            if prediction == 0:
-                colour = "red"
-            else:
-                colour = "green"
-                
-            score_placeholder.markdown(
-                f"""
-                <div style="
-                    width: 280px;
-                    height: 280px;
-                    border-radius: 50%;
-                    border: 20px solid {colour};
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 20px auto;
-                    font-size: 60px;
-                    font-weight: bold;
-                    color: black;
-                    background-color: transparent;
-                ">
-                    {score}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            if prediction == 0:
-                result_placeholder.error("Result: Fake News ❌")
-            else:
-                result_placeholder.success("Result: Real News ✅")
+            st.success(result_text)
