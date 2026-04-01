@@ -28,11 +28,12 @@ st.title("Fake News Detection Tool")
 left_col, middle_col, right_col = st.columns([1.2, 1, 1])
 
 with left_col:
-    st.subheader("Insert Text")
+    st.subheader("Insert Text from social media to scan for fake news:")
 
     user_input = st.text_area(
         "Enter text:",
-        height=400
+        height=400,
+        label_visibility="collapsed"
     )
 
     st.write("")  # spacing
@@ -44,7 +45,7 @@ with left_col:
         scan = st.button("Scan", use_container_width=True)
 
 with middle_col:
-    st.subheader("Scoring Information")
+    st.subheader("Fake News Scoring Information")
     st.write("**0–2:** Highly likely fake news")
     st.write("**3–4:** Likely fake news")
     st.write("**5:** Uncertain")
@@ -68,7 +69,7 @@ with right_col:
 
     if scan:
         if user_input.strip() == "":
-            result_placeholder.warning("Please enter some text before scanning.")
+            result_placeholder.warning("Please enter some text before scanning for fake news.")
         else:
             text_vectorized = vectorizer.transform([user_input])
 
@@ -86,6 +87,12 @@ with right_col:
             else:
                 colour = "green"
 
+
+            if prediction == 0:
+                colour = "red"
+            else:
+                colour = "green"
+                
             score_placeholder.markdown(
                 f"""
                 <div style="
