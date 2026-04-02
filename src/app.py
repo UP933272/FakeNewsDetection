@@ -79,11 +79,11 @@ if scan:
 
 with middle_col:
     st.subheader("Fake News Scoring Information")
-    st.markdown("<span style='color:red'><b>1–2:</b> Very Unlikely fake news</span>", unsafe_allow_html=True)
-    st.markdown("<span style='color:red'><b>3–4:</b> Unlikely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:green'><b>1–2:</b> Very Unlikely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:green'><b>3–4:</b> Unlikely fake news</span>", unsafe_allow_html=True)
     st.markdown("<span style='color:orange'><b>5:</b> Uncertain</span>", unsafe_allow_html=True)
-    st.markdown("<span style='color:green'><b>6–7:</b> Likely fake news</span>", unsafe_allow_html=True)
-    st.markdown("<span style='color:green'><b>8–10:</b> Very Likely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:red'><b>6–7:</b> Likely fake news</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:red'><b>8–10:</b> Very Likely fake news</span>", unsafe_allow_html=True)
     st.write("")
     st.write(
         "This score is based on the machine learning model using Logistic Regression "
