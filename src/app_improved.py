@@ -1,6 +1,10 @@
 import streamlit as st
 import pickle
 
+def reset_app():
+    st.session_state.text_input = ""
+    st.session_state.status = "Waiting for user input"
+
 st.set_page_config(layout="wide")
 
 if "status" not in st.session_state:
@@ -43,9 +47,15 @@ with left_col:
 
     st.write("")
 
-    col1, col2 = st.columns([5, 1])
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.button("Reset", use_container_width=True, on_click=reset_app)
+
     with col2:
         scan = st.button("Scan", use_container_width=True)
+
+
 
 # ---- PROCESS SCAN BEFORE DISPLAYING STATUS ----
 prediction = None
@@ -60,36 +70,33 @@ if scan:
         st.session_state.status = "Waiting for user input"
     else:
         text_vectorized = vectorizer.transform([user_input])
-
         prediction = model.predict(text_vectorized)[0]
         probabilities = model.predict_proba(text_vectorized)[0]
-
         fake_prob = probabilities[0]
 
-    score = round(fake_prob * 9) + 1
-    score = max(1, min(score, 10))
+        score = round(fake_prob * 9) + 1
+        score = max(1, min(score, 10))
+        st.session_state.status = "Scan Completed!"
 
-    st.session_state.status = "Scan Completed!"
+        if score <= 2:
+            colour = "green"
+            result_text = "Very Unlikely Fake News"
 
-    if score <= 2:
-        colour = "green"
-        result_text = "Very Unlikely Fake News"
+        elif score <= 4:
+            colour = "green"
+            result_text = "Unlikely Fake News"
 
-    elif score <= 4:
-        colour = "green"
-        result_text = "Unlikely Fake News"
+        elif score == 5:
+            colour = "orange"
+            result_text = "Uncertain"
 
-    elif score == 5:
-        colour = "orange"
-        result_text = "Uncertain"
+        elif score <= 7:
+            colour = "red"
+            result_text = "Likely Fake News"
 
-    elif score <= 7:
-        colour = "red"
-        result_text = "Likely Fake News"
-
-    else:
-        colour = "red"
-        result_text = "Very Likely Fake News"
+        else:
+            colour = "red"
+            result_text = "Very Likely Fake News"
 
 with middle_col:
     st.subheader("Fake News Scoring Information")
