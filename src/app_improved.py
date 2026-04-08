@@ -60,22 +60,36 @@ if scan:
         st.session_state.status = "Waiting for user input"
     else:
         text_vectorized = vectorizer.transform([user_input])
+
         prediction = model.predict(text_vectorized)[0]
+        probabilities = model.predict_proba(text_vectorized)[0]
 
-        st.session_state.status = "Scan Completed!"
+        fake_prob = probabilities[0]
 
-        if prediction == 0:
-            colour = "red"
-            score = 10
-            result_text = "Very Likely Fake News"
-        elif prediction == 1: 
-            colour = "green"
-            score = 1
-            result_text = "Very Unlikely Fake News"
-        else:
-            colour = "orange"
-            score = 5
-            result_text = "Uncertain"
+    score = round(fake_prob * 9) + 1
+    score = max(1, min(score, 10))
+
+    st.session_state.status = "Scan Completed!"
+
+    if score <= 2:
+        colour = "green"
+        result_text = "Very Unlikely Fake News"
+
+    elif score <= 4:
+        colour = "green"
+        result_text = "Unlikely Fake News"
+
+    elif score == 5:
+        colour = "orange"
+        result_text = "Uncertain"
+
+    elif score <= 7:
+        colour = "red"
+        result_text = "Likely Fake News"
+
+    else:
+        colour = "red"
+        result_text = "Very Likely Fake News"
 
 with middle_col:
     st.subheader("Fake News Scoring Information")
