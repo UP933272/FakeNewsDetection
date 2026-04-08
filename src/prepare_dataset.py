@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.utils import shuffle
 
-# Load Kaggle files
+# Load Online dataset files
 fake_df = pd.read_csv("../data/raw/Fake.csv")
 true_df = pd.read_csv("../data/raw/True.csv")
 
@@ -9,7 +9,7 @@ true_df = pd.read_csv("../data/raw/True.csv")
 fake_df["text"] = fake_df["title"] + " " + fake_df["text"]
 true_df["text"] = true_df["title"] + " " + true_df["text"]
 
-# Keep only needed column
+# Keeps the columns that are needed ignores the rest
 fake_df = fake_df[["text"]].copy()
 true_df = true_df[["text"]].copy()
 
