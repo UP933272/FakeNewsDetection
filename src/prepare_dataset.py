@@ -5,7 +5,7 @@ from sklearn.utils import shuffle
 fake_df = pd.read_csv("../data/raw/Fake.csv")
 true_df = pd.read_csv("../data/raw/True.csv")
 
-# Combine title + text (better features)
+# Combine title + text
 fake_df["text"] = fake_df["title"] + " " + fake_df["text"]
 true_df["text"] = true_df["title"] + " " + true_df["text"]
 
